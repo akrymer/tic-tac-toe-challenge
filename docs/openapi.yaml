@@ -1,0 +1,190 @@
+openapi: 3.0.0
+info:
+  title: Tic Tac Toe APIs
+  version: "0.1"
+  description: API for playing Tic Tac Toe
+
+servers:
+  - url: /api
+
+paths:
+  /games:
+    get:
+      tags: [Games]
+      operationId: api.core.getGames
+      summary: Get all games
+      responses:
+        200:
+          description: Return list of games
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+    post:
+      tags: [Games]
+      operationId: api.core.createGame
+      summary: Create new game
+      parameters:
+        - name: player1
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Player'
+        - name: player2
+          schema:
+            $ref: '#/components/schemas/Player'
+          in: query
+          required: true
+      responses:
+        201:
+          description: Game created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+
+  /games/{gameId}:
+    get:
+      tags: [Games]
+      operationId: api.core.getGame
+      summary: Get a single game
+      parameters:
+        - $ref: '#/components/parameters/gameId'
+      responses:
+        200:
+          description: Return game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        404:
+          description: Game does not exist
+    post:
+      tags: [Games]
+      operationId: api.core.updateGame
+      summary: Make the next move in the current game
+      parameters:
+        - $ref: '#/components/parameters/gameId'
+      requestBody:
+        description: Game to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+
+      responses:
+        200:
+          description: Game updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        400:
+          description: Incorrect game state
+        404:
+          description: Game does not exist
+        409:
+          description: Proposed game state conflicts with the current one
+
+
+components:
+  parameters:
+    gameId:
+      name: gameId
+      description: Unique game identifier
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[a-zA-Z0-9-]+$"
+  schemas:
+    Player:
+      type: string
+      description: Player's name
+      example: "John Smith"
+      minLength: 1
+      maxLength: 50
+    GameState:
+      type: string
+      enum:
+        - new
+        - in progress
+        - draw
+        - player 1 won
+        - player 2 won
+      description: State of the game
+      example: "in progress"
+      readOnly: true
+    Game:
+      type: object
+      required:
+        - id
+        - player1
+        - player2
+        - state
+        - board
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+          example: "1774788e-ac48-4cb4-8fc4-8f85319d74f4"
+          readOnly: true
+        player1:
+          $ref: '#/components/schemas/Player'
+          readOnly: true
+        player2:
+          $ref: '#/components/schemas/Player'
+          readOnly: true
+        state:
+          $ref: "#/components/schemas/GameState"
+        board:
+          type: array
+          description: >
+            2d array 3x3 representing the game board,
+            where 0 means player 1's turn (X), 1 means player 2's turn (O) and
+            null means empty cell 
+          items:
+            type: array
+            items:
+              type: integer
+              minimum: 0
+              maximum: 1
+              nullable: true
+            minItems: 3
+            maxItems: 3
+          minItems: 3
+          maxItems: 3
+          example: [ [ null, 0, null], [ null, 1, null ], [ 0, null, null ]]
+        history:
+          type: array
+          description: The history of all turns in the current game
+          readOnly: true
+          items:
+            type: object
+            required:
+            - playerName
+            - move
+            properties:
+              playerName:
+                $ref: '#/components/schemas/Player'
+              move:
+                type: object
+                required:
+                - x
+                - y
+                properties:
+                  x:
+                    type: integer
+                    description: Horizontal offset of the move, left-most column is 0
+  
+                  y:
+                    type: integer
+                    description: Vertical offset of the move, upper-most row is 0
+                description: Coordinate of the move
+                example: { 'x': 1, 'y': 0 }

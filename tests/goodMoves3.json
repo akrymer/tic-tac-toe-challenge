@@ -1,0 +1,42 @@
+[
+    {
+        "board":
+        [
+            [ null, null, null ],
+            [ null, null, null ],
+            [    0, null, null ]
+        ]
+    },
+    {
+        "board":
+        [
+            [ null, null, null ],
+            [ null, null, null ],
+            [    0,    1, null ]
+        ]
+    },
+    {
+        "board":
+        [
+            [ null, null, null ],
+            [ null,    0, null ],
+            [    0,    1, null ]
+        ]
+    },
+    {
+        "board":
+        [
+            [    1, null, null ],
+            [ null,    0, null ],
+            [    0,    1, null ]
+        ]
+    },
+    {
+        "board":
+        [
+            [    1, null,    0 ],
+            [ null,    0, null ],
+            [    0,    1, null ]
+        ]
+    }
+]
